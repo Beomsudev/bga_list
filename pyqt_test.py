@@ -1,6 +1,7 @@
 import sys
 import openpyxl as op
 import pandas as pd
+from datetime import datetime
 
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
@@ -19,7 +20,6 @@ class WindowClass(QDialog, form_class):
         # fileSelect 버튼 클릭시 selectFunction 메서드 동작
         self.fileSelect.clicked.connect(self.selectFunction)
 
-
     # selectFunction 메서드 정의
     def selectFunction(self):
         # filePath 출력하는 부분 초기화
@@ -29,13 +29,21 @@ class WindowClass(QDialog, form_class):
         path = QFileDialog.getOpenFileName(self, 'Open File', '', 'All File(*);; xlsx File(*.xlsx)')
         # filePath에 현재 읽어온 엑셀 파일 경로를 입력한다.(절대경로)
         self.filePath.setText(path[0])
+        self.file_path = path[0]
 
         # 위 절대 경로 활용해 openpyxl workbook 객체 생성
         wb = op.load_workbook(path[0])
         # 설정한 workbook의 시트리스트를 읽어온다.
         self.shtlist = wb.sheetnames
-        print(self.shtlist)
 
+        bga_org_df = self.read_xlsx()
+        bga_list_df = self.bga_df_maker(bga_org_df)
+        self.save_xlsx(bga_list_df)
+
+    def read_xlsx(self):
+        file_name = self.file_path
+        df = pd.read_excel(file_name)
+        return df
 
     def bga_df_maker(self, df):
         pin_int = df.columns.to_list()      # len : 27
@@ -47,8 +55,6 @@ class WindowClass(QDialog, form_class):
             for i in pin_int:
                 i = str(i)
                 pin_number.append(c+i)
-        # print(df.loc[0])
-        # print(df.loc[0].to_list())
         pin_name_all = []
 
         for i in range(0, len(df["1"])):    # len(pin_int) = 27
@@ -64,6 +70,13 @@ class WindowClass(QDialog, form_class):
         out_df = mydf.dropna(axis=0)
 
         return out_df
+
+    def save_xlsx(self, df):
+        hour = str(datetime.now().hour)
+        minute = str(datetime.now().minute)
+        second = str(datetime.now().second)
+        now_time = hour + minute + second
+        df.to_excel(f"bga_pin_list_{now_time}.xlsx", index=False)
 
 
 # GUI 출력 부분
