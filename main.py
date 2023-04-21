@@ -11,7 +11,7 @@ class MakeBgaPinList():
 
         pin_map_df = self.bga_df_maker(bga_df)
 
-        self.save_xlsx(pin_map_df)
+        # self.save_xlsx(pin_map_df)
 
     def read_xlsx(self):
         file_name = "bga.xlsx"
@@ -46,6 +46,10 @@ class MakeBgaPinList():
         for i in pin_name_all:
             pin_name.extend(i)
 
+        for c in pin_name:
+            # print(c)
+            if c in pin_name:
+                print(c)
 
         mydf = pd.DataFrame({"pin number" : pin_number, "pin name" : pin_name})
         out_df = mydf.dropna(axis=0)
